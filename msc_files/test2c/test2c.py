@@ -93,11 +93,18 @@ class ClangSanitizer(Validation):
     """
 
     #ENV_OPTIONS = "ASAN_OPTIONS=detect_leaks=1" # Makes asan detect leaks on macOS (required). It is enabled by default for Linux
-    COMMAND = ["clang", "-O1", "-g", "-fsanitize=address", "output.c"] # I am not sure if -g is required
+    COMMAND = ["clang",
+               # "-O1", Disabled since it was causing issues
+               "-g", # I am not sure if -g is required
+               "-fsanitize=address",
+               "output.c"]
     def validate(self):
         print("Evaluating test - Address Sanitizer")
-        p = subprocess.Popen(self.COMMAND)
+        print(self.COMMAND)
+        p = subprocess.Popen(self.COMMAND, stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
         p.wait()
+        if(p.returncode != 0):
+            raise Exception("Couldn't compile the program")
         print("Running test - Address Sanitizer")
         q = subprocess.Popen("./a.out")
         q.wait()
@@ -106,12 +113,19 @@ class ClangSanitizer(Validation):
         return True
 
 
-
 def main(c_program, testcase, output="output.c"):
-    copyfile(Utils.fixpath(c_program), output)
-    with open(output, 'a') as f:
-        bottom = SourceCodeAppend.get(TestcaseParser().get_values(testcase))
-        f.write(bottom)
+    c_contents = ""
+    definitions = SourceCodeAppend.get(TestcaseParser().get_values(testcase))
+    with open(c_program) as f:
+        c_contents = f.readlines()
+    with open(output, 'w') as f:
+        f.write(definitions)
+        f.writelines(c_contents)
+    validator = ClangSanitizer()
+    if(validator.validate()):
+        print("TRUE")
+    else:
+        print("FALSE_REACH")
 
 if __name__ == "__main__":
     print("Starting test case generation")
