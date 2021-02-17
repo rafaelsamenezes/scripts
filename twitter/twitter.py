@@ -25,14 +25,17 @@ rs = ResultStream(rule_payload=rule,
 
 
 with open(OUTPUT, 'a', encoding='utf-8') as f:
-    line = "criado_em\ttweet\tusuario\tidioma\n"
+    line = "criado_em\ttweet\tusuario\tidioma\tretweets\tcurtidas\treply\n"
     f.write(line)
     for tweet in rs.stream():
         created_at = tweet["created_at"]
         text = tweet["text"].replace('\n', ' ').replace('\r', '').replace('\t', '')
         user = tweet["user"]["name"]
         lang = tweet["lang"]
-        line = f"{created_at}\t{text}\t{user}\t{lang}\n"
+        retweets = tweet["retweet_count"]
+        likes = tweet["favorite_count"]
+        reply = tweet["reply_count"]
+        line = f"{created_at}\t{text}\t{user}\t{lang}\t{retweets}\t{likes}\t{reply}\n"
         if line != "\n":
             f.write(line)
 
