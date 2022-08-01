@@ -1,17 +1,20 @@
-name: Docker Image CI
 
+name: Benchexec Diff(SV-Comp)
 on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+  workflow_dispatch:
+    inputs:
+      timeout:
+        description: 'Old Action ID'
+        required: true
+      options:
+        description: 'New Action ID'
+        required: true
 
 jobs:
 
   build:
 
     runs-on: ubuntu-latest
-
     steps:
     - name: Run python
       run: python3 --version
