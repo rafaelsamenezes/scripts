@@ -17,4 +17,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Run python
-      run: python3 --version
+      run: pip3 install --user benchexec
